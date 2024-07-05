@@ -3,7 +3,6 @@
 DIR="/mnt/nvr/frigate/cron_exports"
 URL="http://192.168.1.81:5000/api/events"
 EVENTS_FILTER="?camera=front_yard&label=explosion"
-PROCESS_DATE=""
 NUMBEREVENTS=0
 OUTPUT_DIR="./completed"
 
@@ -135,13 +134,11 @@ if [ $TEST_RUN ]; then
   echo End_Time:  $(epochConvert $END_TIME)
   echo API_URL: "${URL}${EVENTS_FILTER}&after=${START_TIME}&before=${END_TIME}"
 fi
-echo Clips_Proccessed: $VIDEOS_PROCESSED
 #####
 # Let's GO!
 # If no videos were downloaded, don't do anything
 #####
 if [[ $VIDEOS_PROCESSED -gt 0 ]]; then
-  echo $PROCESS_DATE
   echo "Processed ${VIDEOS_PROCESSED} Events for $PROCESS_DATE"
   # ## RUN THE FFMPEG CONCAT SCRIPT
   if [ ! $TEST_RUN ]; then
