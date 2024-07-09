@@ -3,9 +3,7 @@
 DIR="/mnt/nvr/frigate/cron_exports"
 URL="http://192.168.1.81:5000/api/events"
 EVENTS_FILTER="?camera=front_yard&label=explosion"
-NUMBEREVENTS=0
 OUTPUT_DIR="./completed"
-
 
 shopt -s expand_aliases
 source ~/.zshrc
@@ -109,7 +107,6 @@ elif [[ ! $TEST_RUN ]]; then
   mkdir -p $PROCESS_DATE
   echo "Making directory $PROCESS_DATE"
 fi
-echo "Am I here?"
 ##
 ### Query Clips
 #####
