@@ -1,4 +1,5 @@
 #!/bin/bash
+baseURL="/videos"
 
 ##
 ### Function to display usage information
@@ -6,6 +7,7 @@
 usage() {
     echo "-d    Specify a date to process YYYY-DD-MM"
     echo "-t    Test run. Only outputs the txt files, but does not download the clips or start the FFMPEG process."
+    echo "-f    Force reprocess. This will remove the date folder"
     exit 1
 }
 ##
@@ -20,6 +22,7 @@ while getopts ":fcts:e:d::" flag; do
       fi
       ;;
     t) TEST_RUN=true;;
+    f) FORCE_PROCESS=true;;
     \?)
       echo "Invalid option: -$OPTARG" >&2
       exit 1
@@ -41,6 +44,7 @@ fi
 
 ## Clean the process text file
 # > "$PROCESS_DATE.txt"
+> "video_output.json"
 
 ## Iterate over the .mp4 files in the PROCESS_DATE directory
 for filename in $(find ./$PROCESS_DATE -name "*.mp4" -maxdepth 1 -type f | sort -n ); do
@@ -57,7 +61,7 @@ for filename in $(find ./$PROCESS_DATE -name "*.mp4" -maxdepth 1 -type f | sort 
   # Convert the Unix Timestamp to PST
   pst_time=$(TZ="America/Los_Angeles" date -d "@$timestamp" '+%Y-%m-%d %H:%M:%S')
   # Output file name and timestamp
-  # echo file \'$filename\' $pst_time >> "$PROCESS_DATE.txt"
+  echo file \'$filename\' $pst_time >> "$PROCESS_DATE.txt"
   ((NUMBEREVENTS++))
 done
 
@@ -77,10 +81,10 @@ elif [ -s file ]; then
 else
   echo Everything good, processing
 fi
-exit
+
 ## DO FFMPEG STUFF HERE
 ffmpeg -y -f concat -safe 0 -i "$PROCESS_DATE.txt" -c copy "${PROCESS_DATE}_concat.mp4"
-  
+
 ## Crop video to hide location
 ffmpeg -y -i "${PROCESS_DATE}_concat.mp4" \
   -vf "crop=2100:700:0:0" "${PROCESS_DATE}_cropped.mp4"
@@ -102,18 +106,22 @@ ffmpeg -y -i ${PROCESS_DATE}_post.mp4 -filter_complex \
 ffmpeg -y -i ${PROCESS_DATE}_post.mp4 -i ${PROCESS_DATE}_overlay.png \
   -filter_complex [0]overlay=x=0:y=500[out] -map [out] -map 0:a? "${PROCESS_DATE}.mp4" \
 
+## Create preview icon
+ffmpeg -i "${PROCESS_DATE}.mp4" -ss 00:00:01.000 -vframes 1 "${PROCESS_DATE}.png"
+
 ## Generate JSON for video player
-ffprobe_output=$(ffprobe -v quiet -print_format json -show_format -show_streams "$input_file")
+ffprobe_output=$(ffprobe -v quiet -print_format json -show_format -show_streams "${PROCESS_DATE}.mp4")
+# $ffprobe_output >> "ffmpeg_output.json"
 duration=$(echo "$ffprobe_output" | jq -r '.format.duration')
-echo "{\"filename\":\"$(basename "$input_file")\",\
-  \"title\": \"$PROCESS_DATE\", \"duration\":\"$(date -d@$duration -u +%M:%S)\", \
+echo "{\"filename\":\"$(basename "$PROCESS_DATE")\",\
+  \"title\": \"$PROCESS_DATE\", \"duration\":\"$(gdate -d@$duration -u +%M:%S)\", \
   \"url\": \"${baseURL}/${PROCESS_DATE}.mp4\", \"thumbnail\": \
   \"$baseURL/$PROCESS_DATE.png\"}" \
   >> "video_output.json"
 
 ## move the needed files
 mkdir -p completed
-mv "${PROCESS_DATE}.mp4" "$PROCESS_DATE.txt" ./completed
+mv "${PROCESS_DATE}.mp4" "$PROCESS_DATE.txt" "$PROCESS_DATE.png" ./completed
 
 ## remove the files not needed
 rm ${PROCESS_DATE}_cropped.mp4 \
@@ -122,3 +130,7 @@ rm ${PROCESS_DATE}_cropped.mp4 \
    ${PROCESS_DATE}_overlay.png
 
 echo "Video Compiled: $PROCESS_DATE.mp4"
+
+if [ ! $TEST_RUN ]; then
+  ./update_playlist.sh "video_output.json"
+fi

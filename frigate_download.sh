@@ -6,6 +6,9 @@ EVENTS_FILTER="?camera=front_yard&label=explosion"
 NUMBEREVENTS=0
 OUTPUT_DIR="./completed"
 
+
+shopt -s expand_aliases
+source ~/.zshrc
 ##
 ### Function to display usage information
 #####
@@ -54,6 +57,7 @@ while getopts ":fcts:e:d:" flag; do
       ;;
   esac
 done
+
 if [ $TEST_RUN ]; then
   echo "Running in test mode..."
 fi
@@ -101,28 +105,29 @@ if [[ -d $PROCESS_DATE ]] && [[ $FORCE_PROCESS ]]; then
       rm -rf ./$PROCESS_DATE
   fi
 elif [[ ! $TEST_RUN ]]; then
-  echo "Making directory $PROCESS_DATE"
   # Now make a dir if it doesn't exist
   mkdir -p $PROCESS_DATE
+  echo "Making directory $PROCESS_DATE"
 fi
-
+echo "Am I here?"
 ##
 ### Query Clips
 #####
+echo :: ${URL}${EVENTS_FILTER}${DATEFILTER}
 for clip in $(curl ${URL}${EVENTS_FILTER}${DATEFILTER} 2> /dev/null | jq -r '.[] | .camera + "-" + .id') ; do
-    if [[ ! -f "${PROCESS_DATE}/${clip}.mp4" ]]; then
-      echo ${clip#*-}
-      id=${clip#*-}
-      if [ ! $TEST_RUN ]; then
-        curl ${URL}/${id}/clip.mp4 -o "${PROCESS_DATE}/${clip}.mp4"
-      fi
-      ((VIDEOS_PROCESSED++))
-    elif [ $TEST_RUN ]; then
-      echo ${clip#*-}
-      ((VIDEOS_PROCESSED++))
-    else
-      echo "File Already Exists"
+  if [[ ! -f "${PROCESS_DATE}/${clip}.mp4" ]]; then
+    echo ${clip#*-}
+    id=${clip#*-}
+    if [ ! $TEST_RUN ]; then
+      curl ${URL}/${id}/clip.mp4 -o "${PROCESS_DATE}/${clip}.mp4"
     fi
+    ((VIDEOS_PROCESSED++))
+  elif [ $TEST_RUN ]; then
+    echo ${clip#*-}
+    ((VIDEOS_PROCESSED++))
+  else
+    echo "File Already Exists"
+  fi
 done
 
 ##
@@ -138,10 +143,12 @@ fi
 # Let's GO!
 # If no videos were downloaded, don't do anything
 #####
-if [[ $VIDEOS_PROCESSED -gt 0 ]]; then
+echo ::: $FORCE_PROCESS
+if [ $VIDEOS_PROCESSED -ne 0] || [ $FORCE_PROCESS ]; then
   echo "Processed ${VIDEOS_PROCESSED} Events for $PROCESS_DATE"
   # ## RUN THE FFMPEG CONCAT SCRIPT
   if [ ! $TEST_RUN ]; then
+    echo "Sending ${PROCESS_DATE} to ffmpeg_process.sh"
     ./ffmpeg_process.sh -d ${PROCESS_DATE}
   fi
 else
