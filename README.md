@@ -15,7 +15,7 @@ For example:
 All videos are concatnated, cropped and blurred for anonymity except for timestamp, and overlayed with a waveform png.
 
 ## My Use Case
-There have been a rediculous amount of fireworks with our neighborhood that start around may and go through the summer. Since the community has been complaining, but no one was able to provide any substantial evidence on the sear amount of fireworks. Oh, I should state these are 60-120 grain mortars that are being launch all hours of the day and night. I decided to learn some bash and create this script to automate the pulls and creation of videos and automatically post them to a website. 
+There have been a rediculous amount of fireworks with our neighborhood that start around may and go through the summer. Since the community has been complaining, but no one was able to provide any substantial evidence on the sear amount of fireworks. I decided to learn bash scripting and create theses scripts to automate the pulls and creation of videos and automatically post them to a website. I'll most likely convert this into python, but wanted a challenge.
 
 ## Use
 Update the URL, Events Filter, and associated directories within the `frigate_download.sh` to fit your use case.
