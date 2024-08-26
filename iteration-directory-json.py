@@ -21,6 +21,7 @@ def process_mp4_files(base_path):
     la_timezone = pytz.timezone('America/Los_Angeles')
     json_output = {}
     eventClipData = []
+    totalEvents = 0
     timeSlots = [0] * 24
     calendarEvents = []
 
@@ -28,11 +29,12 @@ def process_mp4_files(base_path):
         directory_name = os.path.basename(root)
         if len(directory_name) == 10:
             calendarEvents.append({
-                directory_name: len(files)
+                'eventDate': directory_name,
+                'totalEvents': len(files)
             })
             for f in sorted(files):
                 if f.endswith('.mp4'):
-                    print(f)
+                    # print(f)
                     timestamp = int(re.search(r'\d+', f).group(0))
                     dt = datetime.fromtimestamp(timestamp, la_timezone)
                     file_name = dt.strftime('%y-%m-%d--%H-%M-%S.mp4')
@@ -49,13 +51,13 @@ def process_mp4_files(base_path):
                     # calendarEvents.directory_name += 1
                     eventhour = dt.hour
                     timeSlots[eventhour] += 1
+                    totalEvents += 1
 
-    json_output['events'] = eventClipData
+    json_output['allEvents'] = eventClipData
     json_output['timeSlots'] = timeSlots
     json_output['calendarEvents'] = calendarEvents
+    json_output['totalEvents'] = totalEvents
     return json_output
-
-    return mp4_data
 
 # Example usage
 directory_path = './'
