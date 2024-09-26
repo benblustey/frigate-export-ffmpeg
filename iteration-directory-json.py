@@ -38,13 +38,14 @@ def process_mp4_files(base_path):
                     timestamp = int(re.search(r'\d+', f).group(0))
                     dt = datetime.fromtimestamp(timestamp, la_timezone)
                     file_name = dt.strftime('%y-%m-%d--%H-%M-%S.mp4')
-
+                    friendly_date = dt.strftime('%a %b %-d %-I:%M:%S %p')
                     date = dt.strftime('%Y-%m-%dT%H:%M:%S')
                     video_length = get_video_length(os.path.join(root, f))
                     
                     eventClipData.append({
                         'videoLength': video_length,
                         'fileName': file_name,
+                        'friendlyDate': friendly_date,
                         'date': date
                     })
 
@@ -61,8 +62,8 @@ def process_mp4_files(base_path):
 
 # Example usage
 directory_path = './'
-mp4_data = process_mp4_files(directory_path)
+events_data = process_mp4_files(directory_path)
 
-with open('mp4_data.json', 'w') as json_file:
-    json.dump(mp4_data, json_file, indent=4)
+with open('events_data.json', 'w') as json_file:
+    json.dump(events_data, json_file, indent=4)
 
