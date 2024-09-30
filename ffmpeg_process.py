@@ -93,7 +93,7 @@ def iterrate_dir(root_dir):
               'length': video_length,         # 11.138
               'src': new_file_name,           # 1725254411.mp4
               'friendlyDate': friendly_date,  # 24-09-01--22-20-11
-              'epoch': timestamp,             # 1725254411
+              'epoch': int(timestamp),             # 1725254411
               'starred': False                # default value
           })
 
