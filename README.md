@@ -39,6 +39,7 @@ Update the URL, Events Filter, and associated directories within the `frigate_do
 - [ ] include functionality to post json for clip details to MariaDB
   - [ ] move the content of the txt file to the json output
 - [ ] create a temp directory for easy file cleanup
+- [x] regex `r'^[^.]+'` to clean the '107442-km3lt1' from end of clip names
 
 ## Known Issues
 * Mac doesn't like the `date -d` flag, most likely an issue with the intial bash prompt at the top. Local solution was to use `gdate`.

@@ -8,3 +8,4 @@ epoch_convert.sh
 !ffmpeg_process.py
 !folder_iteration.py
 !frigate_download.py
+!process_files.py

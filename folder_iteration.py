@@ -25,15 +25,15 @@ def iterate_directories(base_path):
             # iterate over the files
             for f in sorted(os.listdir(directory_path)):
                 if f.endswith('.mp4'):
-                  # Regex to match the timestamp
-                  timestamp = int(re.search(r'(\d+)', f).group(0))
-                  # # Los Angeles timezone
-                  la_timezone = pytz.timezone('America/Los_Angeles')
-                  eventhour = datetime.fromtimestamp(timestamp, la_timezone).hour
-                  mp4_files.append(f)
-                  # increase the current value by 1
-                  daytimeslots[eventhour] += 1
-                  monthtimeslots[eventhour] += 1
+                # Regex to match the timestamp
+                    timestamp = int(re.search(r'(\d+)', f).group(0))
+                    # # Los Angeles timezone
+                    la_timezone = pytz.timezone('America/Los_Angeles')
+                    eventhour = datetime.fromtimestamp(timestamp, la_timezone).hour
+                    mp4_files.append(f)
+                    # increase the current value by 1
+                    daytimeslots[eventhour] += 1
+                    monthtimeslots[eventhour] += 1
             # print(daytimeslots)
             directory_info = {
                 'date': directory_name,
