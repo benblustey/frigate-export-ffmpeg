@@ -45,6 +45,10 @@ def main():
     provided_start = args.s
     provided_end = args.e
     output_directory = "./downloads"
+    try:
+        os.makedirs(output_directory)
+    except FileExistsError:
+        pass
 
     ## Process Start Time
     if args.s:
@@ -109,8 +113,20 @@ def main():
 
     if videos_processed != 0 or args.f:
         print(f"Processed {videos_processed} Events for {process_date}")
+        process_downloads()
     else:
         print("NOTHING TO DO - Thanks for all the fish!")
+
+def process_downloads():
+    print("Files downloaded. Proceeding with the next tasks...")
+    # Execute the next Python scripts in order
+    try:
+        subprocess.run(['python', 'analyze_directory.py'], check=True)
+        subprocess.run(['python', 'upload_mongodb.py'], check=True)
+        subprocess.run(['python', 'process_video.py'], check=True)
+        print("All tasks completed successfully.")
+    except subprocess.CalledProcessError as e:
+        print(f"Error executing script: {e}")
 
 if __name__ == "__main__":
     main()

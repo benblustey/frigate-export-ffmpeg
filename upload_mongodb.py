@@ -64,8 +64,8 @@ def insert_json_to_mongo(json_file):
 if __name__ == "__main__":
     # Check if a JSON file was passed as an argument
     if len(sys.argv) != 2:
-        print("Usage: python script.py <json_file>")
-        sys.exit(1)
-
-    json_file = sys.argv[1]
+        json_file = 'events_data.json'
+    else:
+        json_file = sys.argv[1]
+        
     insert_json_to_mongo(json_file)

@@ -44,7 +44,7 @@ def main():
       pass
 
     for item in os.listdir(target_dir):
-        print(item,' file found')
+
         video_id = re.search(r'\d+', item).group(0)
         item_path = os.path.join(target_dir, item)
 
@@ -56,7 +56,6 @@ def main():
 
         try:
             ffmpeg.input(item_path).output(temp_crop, vf=f'crop=2100:700:0:0', loglevel=ffmpeg_loglevel).run(overwrite_output=True)
-            print(f"Successfully cropped {item_path} and saved as {temp_crop}")
             
             # Apply boxblur to the entire video
             blurred_video = ffmpeg.input(temp_crop).filter('boxblur', 20)
@@ -64,18 +63,17 @@ def main():
             cropped_video = ffmpeg.input(temp_crop).crop(0, 0, 800, 80)
             # Overlay the cropped video on top of the blurred video
             ffmpeg.overlay(blurred_video, cropped_video, x=10, y=30).output(temp_blurred, loglevel=ffmpeg_loglevel).run(overwrite_output=True)
-            print(f"Successfully blurred {item} and saved as {temp_blurred}")
             
             # Create a sound wave image with a black background
             ffmpeg.input(temp_crop).filter('showwavespic', s='2100x200').output(temp_soundwave, vframes=1, format='image2', pix_fmt='rgb24', loglevel=ffmpeg_loglevel).run(overwrite_output=True)
             
             # Add the overlay to the video and export final mp4
             ffmpeg.filter([ffmpeg.input(temp_blurred), ffmpeg.input(temp_soundwave)], 'overlay', 0, 500).output(final_output_file, loglevel=ffmpeg_loglevel).run(overwrite_output=True)
-            print(f"Successfully combined overlay with video and saved as {final_output_file}")
 
             # Create icon for video
             ffmpeg.input(final_output_file, ss=0).output(final_preview, vframes=1, loglevel=ffmpeg_loglevel).run(overwrite_output=True)
-            print(f"Successfully created icon {final_preview}")
+
+            print(f"Successfully processed {final_output_file}")
 
         except ffmpeg.Error as e:
             logging.error(f"Error occurred: {e.stderr}")
@@ -83,7 +81,7 @@ def main():
     # cleanup
     try:
         shutil.rmtree(temp_dir)
-        print('Deleted the {temp_dir}')
+        print('Deleted the temp_dir')
     except FileNotFoundError:
         pass
 
