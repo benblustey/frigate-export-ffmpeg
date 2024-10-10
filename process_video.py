@@ -47,7 +47,6 @@ def main():
         print(item,' file found')
         video_id = re.search(r'\d+', item).group(0)
         item_path = os.path.join(target_dir, item)
-        output_file = os.path.join(temp_dir, video_id)
 
         temp_crop = os.path.join(temp_dir, video_id+'_cropped.mp4')
         temp_blurred = os.path.join(temp_dir, video_id+'_blurred.mp4')
