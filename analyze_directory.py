@@ -10,7 +10,6 @@ from datetime import datetime
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Analyze directory")
     parser.add_argument("-o", type=str, help="Set and output directory other than default")
-    # parser.add_argument("-t", action="store_true", help="Test run. Only analyzes the directory and out put")
     return parser.parse_args()
 
 # Define the root directory videos are located
@@ -59,7 +58,8 @@ def iterrate_dir(root_dir):
           'src': item,                    # 1725254411.mp4
           'friendlyDate': friendly_date,  # 24-09-01--22-20-11
           'epoch': int(timestamp),        # 1725254411
-          'starred': False                # default value
+          'starred': False,               # default value
+          'approved': False               # default value
       })
 
   # Construct the Output JSON
@@ -74,5 +74,3 @@ def iterrate_dir(root_dir):
       json.dump(eventClipData, json_file, indent=4)
 
 iterrate_dir(target_dir)
-# print("All .mp4 files have been moved to the 'combined' directory.")
-

@@ -64,7 +64,6 @@ def main():
 
     if process_date:
         start_time = yymmdd_convert(process_date)
-        # start_time = int(epoch_date.replace(hour=0, minute=0, second=0).timestamp())
         end_time = return_end_of_day(yymmdd_convert(process_date))
 
     if end_time < start_time:
@@ -80,7 +79,6 @@ def main():
             os.system(f"rm -rf ./{output_directory}")
 
     date_filter = f"&after={start_time}&before={end_time}"
-    print(f":: {URL}{EVENTS_FILTER}{date_filter}")
 
     response = requests.get(f"{URL}{EVENTS_FILTER}{date_filter}")
     clips = json.loads(response.text)
@@ -111,9 +109,6 @@ def main():
 
     if videos_processed != 0 or args.f:
         print(f"Processed {videos_processed} Events for {process_date}")
-        # if not args.t:
-        #     print(f"Sending {process_date} to ffmpeg_process.sh")
-        #     os.system(f"./ffmpeg_process.sh -d {process_date}")
     else:
         print("NOTHING TO DO - Thanks for all the fish!")
 

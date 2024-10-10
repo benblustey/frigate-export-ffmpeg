@@ -11,9 +11,8 @@ logging.basicConfig(filename='mongo_insert.log', level=logging.ERROR,
 def connect_to_mongo(retries=5, delay=2):
     for attempt in range(retries):
         try:
-            # Connect to MongoDB at http://localhost:8080
             client = MongoClient('mongodb://localhost:27017/', serverSelectionTimeoutMS=5000)
-            client.server_info()  # Forces connection test to MongoDB server
+            client.server_info()
             return client
         except errors.ServerSelectionTimeoutError as err:
             logging.error(f"Attempt {attempt + 1} failed: {err}")
@@ -24,8 +23,8 @@ def connect_to_mongo(retries=5, delay=2):
 
 def insert_json_to_mongo(json_file):
     client = connect_to_mongo()
-    db = client['fw_db']  # Replace 'mydatabase' with your database name
-    collection = db['events']  # Replace 'mycollection' with your collection name
+    db = client['fw_db']
+    collection = db['events']
 
     # Load JSON data from file
     try:
