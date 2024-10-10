@@ -1,11 +1,9 @@
 *
 !*.sh
 !.gitignore
-temp_bash.sh
-epoch_convert.sh
-!folder_iteration.py
-!iteration-directory-json.py
-!ffmpeg_process.py
-!folder_iteration.py
-!frigate_download.py
-!process_files.py
+
+##
+!analyze_directory.py
+!download_frigate.py
+!upload_mongodb.py
+!process_video.py
