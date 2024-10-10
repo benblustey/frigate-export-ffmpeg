@@ -1,5 +1,10 @@
 *
 !*.sh
 !.gitignore
-temp_bash.sh
-epoch_convert.sh
+
+##
+!analyze_directory.py
+!download_frigate.py
+!upload_mongodb.py
+!process_video.py
+!copy_files.py
