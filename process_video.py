@@ -81,7 +81,7 @@ def main():
     # cleanup
     try:
         shutil.rmtree(temp_dir)
-        print('Deleted the temp_dir')
+        print(f'Deleted the {temp_dir}')
     except FileNotFoundError:
         pass
 

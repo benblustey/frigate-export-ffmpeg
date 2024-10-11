@@ -1,8 +1,8 @@
 import json
 import os
 import re
-import shutil
 import subprocess
+import ffmpeg
 import pytz
 import argparse
 from datetime import datetime
@@ -17,12 +17,10 @@ target_dir = './downloads'
 
 def get_video_length(file_path):
   try:
-    result = subprocess.run(
-      ['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of', 'default=noprint_wrappers=1:nokey=1', file_path],
-      stdout=subprocess.PIPE,
-      stderr=subprocess.STDOUT
-    )
-    return float(result.stdout)
+    probe = ffmpeg.probe(file_path)
+    video_stream = next(stream for stream in probe['streams'] if stream['codec_type'] == 'video')
+    duration = float(video_stream['duration'])
+    return float(duration)
   except ValueError:
     print(f"Could not retrieve video length for {file_path}")
     return 0
