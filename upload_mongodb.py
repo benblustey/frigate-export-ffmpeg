@@ -1,8 +1,13 @@
 import sys
+import os
 import json
 import logging
 from pymongo import MongoClient, errors
 from time import sleep
+from dotenv import load_dotenv
+
+mongodb = os.getenv('MONGODB')
+mongo_port = os.getenv('MONGO_PORT')
 
 # Set up logging
 logging.basicConfig(filename='mongo_insert.log', level=logging.ERROR,
@@ -11,7 +16,7 @@ logging.basicConfig(filename='mongo_insert.log', level=logging.ERROR,
 def connect_to_mongo(retries=5, delay=2):
     for attempt in range(retries):
         try:
-            client = MongoClient('mongodb://localhost:27017/', serverSelectionTimeoutMS=5000)
+            client = MongoClient('mongodb://{mongodb}:{mongo_port}/', serverSelectionTimeoutMS=5000)
             client.server_info()
             return client
         except errors.ServerSelectionTimeoutError as err:
@@ -62,6 +67,7 @@ def insert_json_to_mongo(json_file):
             print(f"Error occurred while inserting record with epoch {item['epoch']}: {e}")
 
 if __name__ == "__main__":
+    load_dotenv()
     # Check if a JSON file was passed as an argument
     if len(sys.argv) != 2:
         json_file = 'events_data.json'

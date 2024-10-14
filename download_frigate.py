@@ -1,15 +1,16 @@
 import os
-import sys
 import argparse
 import subprocess
 import requests
 import json
 import re
 from datetime import datetime, timedelta
+from dotenv import load_dotenv
 
-# DIR = "/mnt/nvr/frigate/cron_exports" ## not used
-URL = "http://192.168.1.81:5000/api/events"
-EVENTS_FILTER = "?camera=front_yard&labels=fireworks,explosion"
+frigate_server = os.getenv('FRIGATE_SERVER')
+
+URL = frigate_server
+EVENTS_FILTER = "?camera=front_yard&labels=explosion"
 
 def epoch_convert(epoch_time):
     return datetime.fromtimestamp(epoch_time).strftime('%Y-%m-%d %H:%M:%S')
@@ -129,4 +130,5 @@ def process_downloads():
         print(f"Error executing script: {e}")
 
 if __name__ == "__main__":
+    load_dotenv()
     main()
