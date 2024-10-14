@@ -6,8 +6,8 @@ from pymongo import MongoClient, errors
 from time import sleep
 from dotenv import load_dotenv
 
-mongodb = os.getenv('MONGODB')
-mongo_port = os.getenv('MONGO_PORT')
+mongodb = os.getenv('MONGODB_IP')
+mongo_port = os.getenv('MONGODB_PORT')
 
 # Set up logging
 logging.basicConfig(filename='mongo_insert.log', level=logging.ERROR,

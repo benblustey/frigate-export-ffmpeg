@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 
 frigate_server = os.getenv('FRIGATE_SERVER')
 
-URL = frigate_server
+FRIGATE_SERVER = frigate_server
 EVENTS_FILTER = "?camera=front_yard&labels=explosion"
 
 def epoch_convert(epoch_time):
@@ -66,13 +66,11 @@ def main():
         yesterday = datetime.now() + timedelta(days=-1)
         end_time = int(yesterday.replace(hour=23, minute=59, second=59,microsecond=999999).timestamp())
     print("Start Time: ",start_time,"\nEnd Time: ",end_time)
-
     if process_date:
         start_time = yymmdd_convert(process_date)
         end_time = return_end_of_day(yymmdd_convert(process_date))
-
     if end_time < start_time:
-        return("Dates don't work loser")
+        return("Dates don't work.")
 
     if args.o:
         output_directory = args.o
@@ -84,8 +82,9 @@ def main():
             os.system(f"rm -rf ./{output_directory}")
 
     date_filter = f"&after={start_time}&before={end_time}"
-
-    response = requests.get(f"{URL}{EVENTS_FILTER}{date_filter}")
+    request_url = (f"{FRIGATE_SERVER}{EVENTS_FILTER}{date_filter}")
+    print("Request URL: ",request_url)
+    response = requests.get(request_url)
     clips = json.loads(response.text)
     videos_processed = 0
 
@@ -95,7 +94,7 @@ def main():
         if not os.path.exists(f"{output_directory}/{clip_name_short}.mp4"):
             print(clip['id'])
             if not args.t:
-                clip_url = f"{URL}/{clip['id']}/clip.mp4"
+                clip_url = f"{FRIGATE_SERVER}/{clip['id']}/clip.mp4"
                 r = requests.get(clip_url)
                 with open(f"{output_directory}/{clip_name_short}.mp4", 'wb') as f:
                     f.write(r.content)
@@ -110,7 +109,7 @@ def main():
         print(f"Currrent_Time: {epoch_convert(current_time)}")
         print(f"Start_Time: {epoch_convert(start_time)}")
         print(f"End_Time: {epoch_convert(end_time)}")
-        print(f"API_URL: {URL}{EVENTS_FILTER}&after={start_time}&before={end_time}")
+        print(f"API_URL: {FRIGATE_SERVER}{EVENTS_FILTER}&after={start_time}&before={end_time}")
 
     if videos_processed != 0 or args.f:
         print(f"Processed {videos_processed} Events for {process_date}")
