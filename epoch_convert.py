@@ -1,4 +1,6 @@
+import sys
 import time
+import argparse
 from datetime import datetime
 
 def convert_date(date_input):
@@ -23,3 +25,14 @@ def convert_date(date_input):
         
         except ValueError:
             print("Invalid date format. Please use 'YYYY-MM-DD' or 'YYYY-MM-DD HH:MM:SS' for date strings.")
+
+if len(sys.argv) > 1:
+    userDate = sys.argv[1]
+    convert_date(userDate)
+else:
+    print("No date provided.")
+
+# # Example usage
+# date_input_epoch = 1725254411
+# date_input_ymd = "2024-09-01"
+# date_input_ymdhms = "2024-09-01 22:20:11"
