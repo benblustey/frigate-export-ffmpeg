@@ -1,0 +1,11 @@
+{
+  "configurations": [
+    {
+      "name": "Debug Epoch Convert",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/epoch_convert.py",
+      "args": ["1725254411"]
+    }
+  ]
+}
