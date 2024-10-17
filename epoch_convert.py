@@ -1,5 +1,12 @@
+import sys
 import time
+import argparse
 from datetime import datetime
+
+def parse_arguments():
+    parser = argparse.ArgumentParser(description="Process video clips")
+    parser.add_argument("-d", type=str, help="Specify a date to process YYYY-MM-DD or EPOCH")
+    return parser.parse_args()
 
 def convert_date(date_input):
     # Check if the input is an epoch (integer or string of digits)
@@ -23,3 +30,11 @@ def convert_date(date_input):
         
         except ValueError:
             print("Invalid date format. Please use 'YYYY-MM-DD' or 'YYYY-MM-DD HH:MM:SS' for date strings.")
+
+userDate = sys.argv[1]
+convert_date(userDate)
+
+# # Example usage
+# date_input_epoch = 1725254411
+# date_input_ymd = "2024-09-01"
+# date_input_ymdhms = "2024-09-01 22:20:11"
