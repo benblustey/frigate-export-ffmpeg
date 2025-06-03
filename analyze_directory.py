@@ -13,62 +13,72 @@ def parse_arguments():
     return parser.parse_args()
 
 # Define the root directory videos are located
-target_dir = './downloads'
+target_dir = '/Volumes/frigate_final_data'
 
 def get_video_length(file_path):
-  try:
-    probe = ffmpeg.probe(file_path)
-    video_stream = next(stream for stream in probe['streams'] if stream['codec_type'] == 'video')
-    duration = float(video_stream['duration'])
-    return float(duration)
-  except ValueError:
-    print(f"Could not retrieve video length for {file_path}")
-    return 0
+    try:
+        probe = ffmpeg.probe(file_path)
+        video_stream = next(stream for stream in probe['streams'] if stream['codec_type'] == 'video')
+        duration = float(video_stream['duration'])
+        return float(duration)
+    except Exception as e:
+        print(f"Could not retrieve video length for {file_path}: {e}")
+        return 0
 
-def iterrate_dir(root_dir):
-  # SUCCESS
-  eventClipData = []
-  # LOGS
-  processOutput = {}
-  errorTotals = 0
-  errorFiles = []
-  successTotal = 0
-  la_timezone = pytz.timezone('America/Los_Angeles')
-  # Iterate over all items in the root directory
-  for item in os.listdir(root_dir):
-    if item.endswith('.mp4'):
-      item_path = os.path.join(root_dir, item)
-      timestamp = re.search(r'\d+', item).group(0)
-      video_length = get_video_length(item_path)
-      dt = datetime.fromtimestamp(int(timestamp), la_timezone)
-      friendly_date = dt.strftime('%y-%m-%d--%H-%M-%S')
+def iterate_dir(root_dir, output_dir=None):
+    # If no output directory is specified, use the root directory
+    if output_dir is None:
+        output_dir = root_dir
 
-      if not video_length:
-          print('Error processesing',item_path)
-          errorFiles.append({'item_path': item_path})
-          errorTotals += 1
-          continue  # Continue to the next file
-      
-      successTotal += 1
-      # Append event data
-      eventClipData.append({
-          'length': video_length,         # 11.138
-          'src': item,                    # 1725254411.mp4
-          'friendlyDate': friendly_date,  # 24-09-01--22-20-11
-          'epoch': int(timestamp),        # 1725254411
-          'starred': False,               # default value
-          'approved': False               # default value
-      })
+    # SUCCESS
+    eventClipData = []
+    # LOGS
+    processOutput = {}
+    errorTotals = 0
+    errorFiles = []
+    successTotal = 0
+    la_timezone = pytz.timezone('America/Los_Angeles')
+    # Iterate over all items in the root directory
+    for item in os.listdir(root_dir):
+        if item.endswith('.mp4'):
+            item_path = os.path.join(root_dir, item)
+            timestamp = re.search(r'\d+', item).group(0)
+            video_length = get_video_length(item_path)
+            dt = datetime.fromtimestamp(int(timestamp), la_timezone)
+            iso_date = dt.strftime('%Y-%m-%dT%H:%M:%S.%f%z')
+            formatted_date = dt.strftime('%d %b %Y %H:%M:%S')
 
-  # Construct the Output JSON
-  processOutput['errorTotals'] = errorTotals
-  processOutput['errorFiles'] = errorFiles
-  processOutput['successTotal'] = successTotal
-  
-  with open('process_output.json', 'w') as json_file:
-      json.dump(processOutput, json_file, indent=4)
+        if not video_length:
+            print('Error processing',item_path)
+            errorFiles.append({'item_path': item_path})
+            errorTotals += 1
+            continue  # Continue to the next file
+        
+        successTotal += 1
+        # Append event data
+        eventClipData.append({
+            'length': video_length,          # 11.138
+            'src': item,                     # 1725254411.mp4
+            'eventDate': iso_date,           # 2025-01-02T12:00:00.000+00:00
+            'formattedDate': formatted_date, # 3 Jan 2025 12:00:00
+            'epoch': int(timestamp),         # 1725254411
+            'starred': False,                # default value
+            'approved': False                # default value
+        })
 
-  with open('events_data.json', 'w') as json_file:
-      json.dump(eventClipData, json_file, indent=4)
+    # Construct the Output JSON
+    processOutput['errorTotals'] = errorTotals
+    processOutput['errorFiles'] = errorFiles
+    processOutput['successTotal'] = successTotal
+    
+    with open(os.path.join(output_dir, 'process_output.json'), 'w') as json_file:
+        json.dump(processOutput, json_file, indent=4)
 
-iterrate_dir(target_dir)
+    with open(os.path.join(output_dir, 'events_data.json'), 'w') as json_file:
+        json.dump(eventClipData, json_file, indent=4)
+
+if __name__ == '__main__':
+    args = parse_arguments()
+    if args.o:
+        target_dir = args.o
+    iterate_dir(target_dir, output_dir='.')
