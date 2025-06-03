@@ -62,6 +62,66 @@ MONGODB_PORT=27017
 FRIGATE_SERVER="http://your-frigate-server:5000/api/events"
 ```
 
+## Testing
+
+The project includes a comprehensive test suite using pytest. The tests cover all major functionality including video downloading, processing, directory analysis, and MongoDB operations.
+
+### Installing Test Dependencies
+
+```bash
+pip install -r tests/requirements.txt
+```
+
+### Running Tests
+
+Run all tests:
+```bash
+pytest
+```
+
+Run tests with coverage report:
+```bash
+pytest --cov=.
+```
+
+Run specific test file:
+```bash
+pytest tests/test_download_frigate.py
+```
+
+Run tests in parallel:
+```bash
+pytest -n auto
+```
+
+### Test Structure
+
+The test suite is organized as follows:
+
+- `tests/conftest.py`: Shared fixtures and test utilities
+- `tests/test_download_frigate.py`: Tests for video download functionality
+- `tests/test_process_video.py`: Tests for video processing operations
+- `tests/test_analyze_directory.py`: Tests for directory analysis
+- `tests/test_upload_mongodb.py`: Tests for MongoDB operations
+
+### Test Coverage
+
+The test suite includes:
+- Unit tests for individual functions
+- Integration tests for main workflows
+- Error handling tests
+- Edge case tests
+- Mock objects for external dependencies (FFmpeg, MongoDB, API calls)
+
+### Writing New Tests
+
+When adding new features, follow these guidelines:
+1. Create corresponding test cases in the appropriate test file
+2. Use existing fixtures from `conftest.py` when possible
+3. Mock external dependencies using pytest's mocking capabilities
+4. Include both success and error cases
+5. Test edge cases and boundary conditions
+
 ## Usage
 
 ### Downloading Clips
