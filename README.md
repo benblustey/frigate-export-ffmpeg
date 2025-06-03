@@ -1,12 +1,243 @@
-# frigate-export-ffmpeg
+# Frigate Export FFmpeg
 
-## Overview
-A collection of python scripts to GET videos from a frigate API endpoint, analyze the `.mp4` files quickly, push JSON data into a mongoDB, and process the videos using FFMPEG.
+A Python-based tool for downloading, processing, and managing video clips from a Frigate NVR system. This tool is specifically designed to handle video clips of explosions and fireworks events, with features for video processing, metadata analysis, and MongoDB storage.
 
-This library is designed to work independently from user interaction and executed via cron.
+## Project Overview
+
+This project was developed to help document and provide evidence of excessive fireworks activity in a neighborhood. It automates the process of collecting, processing, and storing video evidence from a Frigate NVR system.
+
+### Processing Pipeline
+1. Check for Events in Frigate API
+2. Download Video Events
+3. Analyze Videos (Directory)
+4. Upload JSON to MongoDB
+5. Process Videos
+6. Move original videos to cold storage
+7. Sync processed videos to Cloudflare CDN
+
+## Features
+
+- Download video clips from Frigate NVR based on specific criteria (camera, labels, date range)
+- Process videos with FFmpeg to:
+  - Crop and scale videos
+  - Apply blur effects
+  - Extract and overlay timestamps
+  - Generate and overlay soundwave visualizations
+- Store metadata in MongoDB
+- Flexible date range processing
+- Test mode for dry runs
+- Force reprocessing option
+- Automatic file management (cold storage and CDN sync)
+
+## Prerequisites
+
+- Python 3.x
+- FFmpeg
+- MongoDB
+- Frigate NVR instance
+- Cloudflare account (for CDN sync)
+
+## Installation
+
+1. Clone the repository:
+```bash
+git clone [repository-url]
+cd frigate-export-ffmpeg
+```
+
+2. Install required Python packages:
+```bash
+pip install -r requirements.txt
+```
+
+3. Copy the example environment file and configure it:
+```bash
+cp example.env .env
+```
+
+Edit the `.env` file with your specific configuration:
+```
+MONGODB_IP=localhost
+MONGODB_PORT=27017
+FRIGATE_SERVER="http://your-frigate-server:5000/api/events"
+```
+
+## Testing
+
+The project includes a comprehensive test suite using pytest. The tests cover all major functionality including video downloading, processing, directory analysis, and MongoDB operations.
+
+### Installing Test Dependencies
+
+```bash
+pip install -r tests/requirements.txt
+```
+
+### Running Tests
+
+Run all tests:
+```bash
+pytest
+```
+
+Run tests with coverage report:
+```bash
+pytest --cov=.
+```
+
+Run specific test file:
+```bash
+pytest tests/test_download_frigate.py
+```
+
+Run tests in parallel:
+```bash
+pytest -n auto
+```
+
+### Test Structure
+
+The test suite is organized as follows:
+
+- `tests/conftest.py`: Shared fixtures and test utilities
+- `tests/test_download_frigate.py`: Tests for video download functionality
+- `tests/test_process_video.py`: Tests for video processing operations
+- `tests/test_analyze_directory.py`: Tests for directory analysis
+- `tests/test_upload_mongodb.py`: Tests for MongoDB operations
+
+### Test Coverage
+
+The test suite includes:
+- Unit tests for individual functions
+- Integration tests for main workflows
+- Error handling tests
+- Edge case tests
+- Mock objects for external dependencies (FFmpeg, MongoDB, API calls)
+
+### Writing New Tests
+
+When adding new features, follow these guidelines:
+1. Create corresponding test cases in the appropriate test file
+2. Use existing fixtures from `conftest.py` when possible
+3. Mock external dependencies using pytest's mocking capabilities
+4. Include both success and error cases
+5. Test edge cases and boundary conditions
+
+## Usage
+
+### Downloading Clips
+
+```bash
+python download_frigate.py [options]
+```
+
+Options:
+- `-t`: Test run (only outputs txt files, no downloads)
+- `-d`: Specify date to process (YYYY-MM-DD)
+- `-f`: Force reprocess (removes date folder)
+- `-s`: Set custom start time (YYYY-MM-DD)
+- `-e`: Set custom end time (YYYY-MM-DD)
+- `-o`: Set custom output directory
+
+### Processing Videos
+
+```bash
+python process_video.py [options]
+```
+
+Options:
+- `-o`: Set custom output directory
+- `-i`: Set custom input directory
+
+### Analyzing Directory
+
+```bash
+python analyze_directory.py
+```
+
+### Uploading to MongoDB
+
+```bash
+python upload_mongodb.py
+```
+
+## Directory Structure
+
+- `downloads/`: Raw downloaded video clips
+- `completed/`: Processed video files
+- `temp_processing/`: Temporary files during processing
+- `non-readable/`: Failed or unprocessable files
+
+## Technical Details
+
+### Frigate API Integration
+
+The system uses Frigate's HTTP API to fetch events based on specific criteria:
+```
+<URL|IP-frigate-server>?camera=<camera_name>&label=<label>&after=<start-timestamp>&before=<end-timestamp>
+```
+
+- Timestamps are in Linux EPOCH format
+- Default processing window: 24 hours (06:00:00 to next day 06:00:00)
+- Events are filtered by camera and label (e.g., explosions, fireworks)
+
+### Event Data Structure
+
+Example event object stored in MongoDB:
+```json
+{
+  "length": 11.138,
+  "src": "1725254411.mp4",
+  "friendlyDate": "24-09-01--22-20-11",
+  "epoch": 1725254411,
+  "starred": false,
+  "approved": false
+}
+```
+
+### Video Processing
+
+Each video undergoes the following processing:
+1. Resize and crop
+2. Apply blur effect (except timestamp)
+3. Generate and overlay soundwave visualization
+4. Output to processed directory
+
+## Error Handling
+
+- Logs are maintained in `process_video.log`
+- Failed processing attempts are logged with timestamps
+- Temporary files are automatically cleaned up
+
+## Known Issues
+
+- Mac compatibility issue with `date -d` flag (use `gdate` as workaround)
+
+## Todo List
+
+- [ ] Add unit tests
+- [ ] Create example .env-config file
+- [ ] Add video audio analysis for event type detection
+- [ ] Complete file mover for originals and processed
+- [ ] Add notifications (Notifiarr/Discord)
+- [ ] Add progress graphic on waveform
+- [ ] Improve error handling for FFmpeg processing
+- [x] Remove hardcoded values
+- [x] Add custom time range flag
+- [x] Improve output logs
+- [x] Add MariaDB integration
+- [x] Create temp directory for cleanup
+- [x] Implement filename cleaning
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+[Add your license information here]
 
 ```
-Check for Events => Download Video Events => Analyze Videos => Upload JSON to MongoDB => Process Videos
+Check for Events => Download Video Events => Analyze Videos (Directory) => Upload JSON to MongoDB => Process Videos
 ```
 
 Once the data is uploaded and the video files are completed, the original video files are sent to cold storage on the local array, while the processed videos are moved to a directory that eventually gets synced with Cloudflare CDN.
@@ -27,7 +258,7 @@ All videos are concatnated, cropped and blurred for anonymity except for timesta
 There have been a rediculous amount of fireworks with our neighborhood that start around may and go through the summer. The community has been complaining, but no one was able to provide any substantial evidence on the sheer amount of fireworks. I decided to learn bash scripting and create theses scripts to automate the pulls and creation of videos and automatically post them to a website. I'll most likely convert this into python, but wanted a challenge.
 
 ## Script Descriptions
-`frigate_download.py` uses the Frigate API to request json based on a specific date range (default to previous day), specified event types. The returned JSON is then used to download each clip into a directory.
+`download_frigate.py` uses the Frigate API to request json based on a specific date range (default to previous day), specified event types. The returned JSON is then used to download each clip into a directory.
 
 `analyze_directory.py` Iterates over any files with the `.mp4` file extension in the download or target_dir. Each event is analyzed for specific attributes and appended to the json file `events_data.json`.
 

@@ -9,8 +9,9 @@ from dotenv import load_dotenv
 
 frigate_server = os.getenv('FRIGATE_SERVER')
 
-FRIGATE_SERVER = frigate_server
-EVENTS_FILTER = "?camera=front_yard&labels=explosion"
+# FRIGATE_SERVER = frigate_server
+FRIGATE_SERVER = "http://192.168.1.81:5000/api/events"
+EVENTS_FILTER = "?camera=front_yard&labels=explosion&fireworks"
 
 def epoch_convert(epoch_time):
     return datetime.fromtimestamp(epoch_time).strftime('%Y-%m-%d %H:%M:%S')
