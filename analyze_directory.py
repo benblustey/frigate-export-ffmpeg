@@ -13,7 +13,8 @@ def parse_arguments():
     return parser.parse_args()
 
 # Define the root directory videos are located
-target_dir = '/Volumes/frigate_final_data'
+# target_dir = '/Volumes/frigate_final_data'
+target_dir = './downloads'
 
 def get_video_length(file_path):
     try:
@@ -51,8 +52,9 @@ def iterate_dir(root_dir, output_dir=None):
         if not video_length:
             print('Error processing',item_path)
             errorFiles.append({'item_path': item_path})
+            video_length = 0
             errorTotals += 1
-            continue  # Continue to the next file
+            # continue  # Continue to the next file
         
         successTotal += 1
         # Append event data
@@ -67,14 +69,15 @@ def iterate_dir(root_dir, output_dir=None):
         })
 
     # Construct the Output JSON
+    processOutput['successTotal'] = successTotal
     processOutput['errorTotals'] = errorTotals
     processOutput['errorFiles'] = errorFiles
-    processOutput['successTotal'] = successTotal
-    
-    with open(os.path.join(output_dir, 'process_output.json'), 'w') as json_file:
+    processOutput['eventClipData'] = eventClipData
+    current_datetime = datetime.now().strftime('%Y-%m-%d--%H%M')
+    with open(os.path.join(output_dir, f'process_output_{current_datetime}.json'), 'w') as json_file:
         json.dump(processOutput, json_file, indent=4)
 
-    with open(os.path.join(output_dir, 'events_data.json'), 'w') as json_file:
+    with open(os.path.join(output_dir, f'events_data.json'), 'w') as json_file:
         json.dump(eventClipData, json_file, indent=4)
 
 if __name__ == '__main__':

@@ -16,7 +16,7 @@ logging.basicConfig(filename='mongo_insert.log', level=logging.ERROR,
 def connect_to_mongo(retries=5, delay=2):
     for attempt in range(retries):
         try:
-            client = MongoClient('mongodb://{mongodb}:{mongo_port}/', serverSelectionTimeoutMS=5000)
+            client = MongoClient(f'mongodb://{mongodb}:{mongo_port}/', serverSelectionTimeoutMS=5000)
             client.server_info()
             return client
         except errors.ServerSelectionTimeoutError as err:
@@ -39,7 +39,7 @@ def insert_json_to_mongo(json_file):
         logging.error(f"Error reading or parsing JSON file: {e}")
         print(f"Error reading or parsing JSON file: {e}")
         sys.exit(1)
-
+    print("Uploading data to MongoDB...")
     # Insert each object into MongoDB and confirm addition
     for item in data:
         # Validate the presence of the 'epoch' key

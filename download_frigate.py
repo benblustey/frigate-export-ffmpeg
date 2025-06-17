@@ -96,6 +96,7 @@ def main():
             print(clip['id'])
             if not args.t:
                 clip_url = f"{FRIGATE_SERVER}/{clip['id']}/clip.mp4"
+                print(clip_url)
                 r = requests.get(clip_url)
                 with open(f"{output_directory}/{clip_name_short}.mp4", 'wb') as f:
                     f.write(r.content)
@@ -107,7 +108,7 @@ def main():
             print("File Already Exists")
 
     if args.t:
-        print(f"Currrent_Time: {epoch_convert(current_time)}")
+        print(f"Current_Time: {epoch_convert(current_time)}")
         print(f"Start_Time: {epoch_convert(start_time)}")
         print(f"End_Time: {epoch_convert(end_time)}")
         print(f"API_URL: {FRIGATE_SERVER}{EVENTS_FILTER}&after={start_time}&before={end_time}")
@@ -124,7 +125,7 @@ def process_downloads():
     try:
         subprocess.run(['python', 'analyze_directory.py'], check=True)
         subprocess.run(['python', 'upload_mongodb.py'], check=True)
-        subprocess.run(['python', 'process_video.py'], check=True)
+        # subprocess.run(['python', 'process_video.py'], check=True)
         print("All tasks completed successfully.")
     except subprocess.CalledProcessError as e:
         print(f"Error executing script: {e}")
