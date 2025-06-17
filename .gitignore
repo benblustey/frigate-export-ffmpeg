@@ -12,3 +12,11 @@
 !copy_files.py
 !example.env
 !epoch_convert.py
+!docker-compose.yaml
+!Dockerfile
+!crontab
+!requirements.txt
+!.env.example
+!./tests/
+!tests/*.py
+!tests/*.txt

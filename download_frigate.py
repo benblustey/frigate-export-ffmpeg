@@ -5,13 +5,6 @@ import requests
 import json
 import re
 from datetime import datetime, timedelta
-from dotenv import load_dotenv
-
-frigate_server = os.getenv('FRIGATE_SERVER')
-
-# FRIGATE_SERVER = frigate_server
-FRIGATE_SERVER = "http://192.168.1.81:5000/api/events"
-EVENTS_FILTER = "?camera=front_yard&labels=explosion&fireworks"
 
 def epoch_convert(epoch_time):
     return datetime.fromtimestamp(epoch_time).strftime('%Y-%m-%d %H:%M:%S')
@@ -24,18 +17,27 @@ def parse_arguments():
     parser.add_argument("-s", type=str, help="Set a custom start time YYYY-MM-DD")
     parser.add_argument("-e", type=str, help="Set a custom end time YYYY-MM-DD")
     parser.add_argument("-o", type=str, help="Set and output directory other than default")
-    # parser.add_argument("-c", action="store_true", help="Processes the current day up to current time")
+    parser.add_argument("-p", "--process-video", action="store_true", help="Run the process_video.py script after download")
     return parser.parse_args()
 
-## CONVERTERS
-def epoch_convert(epoch_time): ## 1728457200
-    return datetime.fromtimestamp(epoch_time).strftime('%Y-%m-%d %H:%M:%S')
-def yymmdd_convert(yymmdd): ## 2024-10-09
+def yymmdd_convert(yymmdd):
     return (datetime.strptime(yymmdd, '%Y-%m-%d')).timestamp()
-def return_end_of_day(epoch_value): ## 1728457200
+
+def return_end_of_day(epoch_value):
     date_obj = datetime.utcfromtimestamp(epoch_value)
     end_of_day = datetime.combine(date_obj, datetime.max.time()) - timedelta(microseconds=1)
     return int(end_of_day.timestamp())
+
+def process_downloads(process_video=False):
+    print("Files downloaded. Proceeding with the next tasks...")
+    try:
+        subprocess.run(['python', 'analyze_directory.py'], check=True)
+        subprocess.run(['python', 'upload_mongodb.py'], check=True)
+        if process_video:
+            subprocess.run(['python', 'process_video.py'], check=True)
+        print("All tasks completed successfully.")
+    except subprocess.CalledProcessError as e:
+        print(f"Error executing script: {e}")
 
 def main():
     args = parse_arguments()
@@ -46,30 +48,33 @@ def main():
     process_date = args.d
     provided_start = args.s
     provided_end = args.e
-    output_directory = "./downloads"
+    output_directory = os.getenv('DOWNLOADS_DIR', './downloads')
+    
     try:
         os.makedirs(output_directory)
     except FileExistsError:
         pass
 
-    ## Process Start Time
     if args.s:
         print(provided_start)
         start_time = yymmdd_convert(provided_start)
     elif not process_date:
         yesterday = datetime.now() + timedelta(days=-1)
         start_time = int(yesterday.replace(hour=0, minute=0, second=0).timestamp())
-    ## Process End Time
-    if args.e: ## 2024-10-09
+    
+    if args.e:
         print(provided_end)
         end_time = return_end_of_day(yymmdd_convert(provided_end))
     elif not process_date:
         yesterday = datetime.now() + timedelta(days=-1)
         end_time = int(yesterday.replace(hour=23, minute=59, second=59,microsecond=999999).timestamp())
+    
     print("Start Time: ",start_time,"\nEnd Time: ",end_time)
+    
     if process_date:
         start_time = yymmdd_convert(process_date)
         end_time = return_end_of_day(yymmdd_convert(process_date))
+    
     if end_time < start_time:
         return("Dates don't work.")
 
@@ -82,8 +87,11 @@ def main():
             print(f"Removing directory ./{output_directory}")
             os.system(f"rm -rf ./{output_directory}")
 
+    frigate_server = os.getenv('FRIGATE_SERVER')
+    events_filter = "?camera=front_yard&labels=explosion&fireworks"
     date_filter = f"&after={start_time}&before={end_time}"
-    request_url = (f"{FRIGATE_SERVER}{EVENTS_FILTER}{date_filter}")
+    request_url = (f"{frigate_server}{events_filter}{date_filter}")
+    
     print("Request URL: ",request_url)
     response = requests.get(request_url)
     clips = json.loads(response.text)
@@ -95,7 +103,7 @@ def main():
         if not os.path.exists(f"{output_directory}/{clip_name_short}.mp4"):
             print(clip['id'])
             if not args.t:
-                clip_url = f"{FRIGATE_SERVER}/{clip['id']}/clip.mp4"
+                clip_url = f"{frigate_server}/{clip['id']}/clip.mp4"
                 print(clip_url)
                 r = requests.get(clip_url)
                 with open(f"{output_directory}/{clip_name_short}.mp4", 'wb') as f:
@@ -111,25 +119,13 @@ def main():
         print(f"Current_Time: {epoch_convert(current_time)}")
         print(f"Start_Time: {epoch_convert(start_time)}")
         print(f"End_Time: {epoch_convert(end_time)}")
-        print(f"API_URL: {FRIGATE_SERVER}{EVENTS_FILTER}&after={start_time}&before={end_time}")
+        print(f"API_URL: {frigate_server}{events_filter}&after={start_time}&before={end_time}")
 
     if videos_processed != 0 or args.f:
         print(f"Processed {videos_processed} Events for {process_date}")
-        process_downloads()
+        process_downloads(args.process_video)
     else:
         print("NOTHING TO DO - Thanks for all the fish!")
 
-def process_downloads():
-    print("Files downloaded. Proceeding with the next tasks...")
-    # Execute the next Python scripts in order
-    try:
-        subprocess.run(['python', 'analyze_directory.py'], check=True)
-        subprocess.run(['python', 'upload_mongodb.py'], check=True)
-        # subprocess.run(['python', 'process_video.py'], check=True)
-        print("All tasks completed successfully.")
-    except subprocess.CalledProcessError as e:
-        print(f"Error executing script: {e}")
-
 if __name__ == "__main__":
-    load_dotenv()
     main()

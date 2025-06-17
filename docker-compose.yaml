@@ -1,0 +1,11 @@
+services:
+  frigate-export:
+    build: .
+    volumes:
+      - ./downloads:/app/downloads
+    environment:
+      - FRIGATE_SERVER=${FRIGATE_SERVER:-http://192.168.1.81:5000/api/events}
+      - CRON_SCHEDULE=${CRON_SCHEDULE:-0 * * * *}
+      - DOWNLOADS_DIR=/app/downloads
+      - PROCESS_VIDEO=${PROCESS_VIDEO:-false}
+    restart: unless-stopped
