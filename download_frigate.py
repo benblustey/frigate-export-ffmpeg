@@ -69,7 +69,7 @@ def main():
         yesterday = datetime.now() + timedelta(days=-1)
         end_time = int(yesterday.replace(hour=23, minute=59, second=59,microsecond=999999).timestamp())
     
-    print("Start Time: ",start_time,"\nEnd Time: ",end_time)
+    # print("Start Time: ",start_time,"\nEnd Time: ",end_time)
     
     if process_date:
         start_time = yymmdd_convert(process_date)
@@ -89,8 +89,8 @@ def main():
 
     frigate_server = os.getenv('FRIGATE_SERVER')
     events_filter = "?camera=front_yard&labels=explosion&fireworks"
-    date_filter = f"&after={start_time}&before={end_time}"
-    request_url = (f"{frigate_server}{events_filter}{date_filter}")
+    # date_filter = f"&after={start_time}&before={end_time}"
+    request_url = (f"{frigate_server}{events_filter}")
     
     print("Request URL: ",request_url)
     response = requests.get(request_url)
@@ -112,8 +112,8 @@ def main():
         elif args.t:
             print(clip['id'])
             videos_processed += 1
-        else:
-            print("File Already Exists")
+        # else:
+        #     print("File Already Exists")
 
     if args.t:
         print(f"Current_Time: {epoch_convert(current_time)}")

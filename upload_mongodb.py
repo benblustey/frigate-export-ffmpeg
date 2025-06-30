@@ -8,6 +8,8 @@ from dotenv import load_dotenv
 
 mongodb = os.getenv('MONGODB_IP')
 mongo_port = os.getenv('MONGODB_PORT')
+mongodb_name = os.getenv('MONGODB_NAME')
+mongo_collection = os.getenv('MONGODB_COLLECTION')
 
 # Set up logging
 logging.basicConfig(filename='mongo_insert.log', level=logging.ERROR,
@@ -28,8 +30,8 @@ def connect_to_mongo(retries=5, delay=2):
 
 def insert_json_to_mongo(json_file):
     client = connect_to_mongo()
-    db = client['fw_db']
-    collection = db['events']
+    db = client[mongodb_name]
+    collection = db[mongo_collection]
 
     # Load JSON data from file
     try:

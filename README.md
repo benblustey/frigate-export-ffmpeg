@@ -135,6 +135,12 @@ Logs are written to both:
 4. Push to the branch
 5. Create a new Pull Request
 
+## Todos
+
+** Add Attributes About Event **
+- [ ] Include the `label:<camera_name>` for adding multiple sources
+- [ ] Include the `data.score` to allow wider range of downloads with manual or future inteligent analyzing
+
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.

@@ -1,6 +1,7 @@
 services:
   frigate-export:
-    build: .
+    # build: .
+    image: henhouse/frigate-export:latest
     volumes:
       - ./downloads:/app/downloads
     environment:
@@ -9,3 +10,29 @@ services:
       - DOWNLOADS_DIR=/app/downloads
       - PROCESS_VIDEO=${PROCESS_VIDEO:-false}
     restart: unless-stopped
+    depends_on:
+      - mongodb
+    networks:
+      - frigate-network
+
+  mongodb:
+    image: mongo:latest # Or specify a specific version like mongo:7.0
+    container_name: frigate-mongodb
+    ports:
+      - "27017:27017" # Map host port 27017 to container port 27017
+    volumes:
+      - ./mongodb_data:/data/db # Persist data using a named volume
+    environment:
+      # Optional: Set MongoDB root user and password for authentication
+      # - MONGO_INITDB_ROOT_USERNAME=admin
+      # - MONGO_INITDB_ROOT_PASSWORD=password
+    restart: unless-stopped # Restart the container automatically unless explicitly stopped
+    networks:
+      - frigate-network
+
+networks:
+  frigate-network:
+    driver: bridge
+
+volumes:
+  mongodb_data: # Define the named volume for data persistence
