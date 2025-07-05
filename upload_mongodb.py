@@ -5,14 +5,17 @@ import logging
 from pymongo import MongoClient, errors
 from time import sleep
 from dotenv import load_dotenv
+from datetime import datetime
 
 mongodb = os.getenv('MONGODB_IP')
 mongo_port = os.getenv('MONGODB_PORT')
 mongodb_name = os.getenv('MONGODB_NAME')
 mongo_collection = os.getenv('MONGODB_COLLECTION')
+logs_dir = os.getenv('LOGS_DIR', './logs')
 
 # Set up logging
-logging.basicConfig(filename='mongo_insert.log', level=logging.ERROR,
+current_datetime = datetime.now().strftime('%Y-%m-%d--%H%M')
+logging.basicConfig(filename=f'{logs_dir}/mongo_insert_{current_datetime}.log', level=logging.ERROR,
                     format='%(asctime)s:%(levelname)s:%(message)s')
 
 def connect_to_mongo(retries=5, delay=2):

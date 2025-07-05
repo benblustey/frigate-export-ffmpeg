@@ -13,8 +13,8 @@ def parse_arguments():
     return parser.parse_args()
 
 # Define the root directory videos are located
-# target_dir = '/Volumes/frigate_final_data'
-target_dir = './downloads'
+target_dir = os.getenv('DOWNLOADS_DIR') or './downloads'
+logs_dir = os.getenv('LOGS_DIR') or './output_logs'
 
 def get_video_length(file_path):
     try:
@@ -26,10 +26,10 @@ def get_video_length(file_path):
         print(f"Could not retrieve video length for {file_path}: {e}")
         return 0
 
-def iterate_dir(root_dir, output_dir=None):
+def iterate_dir(root_dir, logs_dir=None):
     # If no output directory is specified, use the root directory
-    if output_dir is None:
-        output_dir = root_dir
+    if logs_dir is None:
+        logs_dir = root_dir
 
     # SUCCESS
     eventClipData = []
@@ -74,14 +74,14 @@ def iterate_dir(root_dir, output_dir=None):
     processOutput['errorFiles'] = errorFiles
     processOutput['eventClipData'] = eventClipData
     current_datetime = datetime.now().strftime('%Y-%m-%d--%H%M')
-    with open(os.path.join(output_dir, f'process_output_{current_datetime}.json'), 'w') as json_file:
+    with open(os.path.join(logs_dir, f'process_output_{current_datetime}.json'), 'w') as json_file:
         json.dump(processOutput, json_file, indent=4)
 
-    with open(os.path.join(output_dir, f'events_data.json'), 'w') as json_file:
+    with open(os.path.join(logs_dir, f'events_data.json'), 'w') as json_file:
         json.dump(eventClipData, json_file, indent=4)
 
 if __name__ == '__main__':
     args = parse_arguments()
     if args.o:
         target_dir = args.o
-    iterate_dir(target_dir, output_dir='.')
+    iterate_dir(target_dir, logs_dir='.')

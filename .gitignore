@@ -5,6 +5,8 @@
 ##
 !.vscode
 !.vscode/*.json
+## Core Files
+!main.py
 !analyze_directory.py
 !download_frigate.py
 !upload_mongodb.py
@@ -12,10 +14,13 @@
 !copy_files.py
 !example.env
 !epoch_convert.py
+
+## Docker
 !docker-compose.yaml
 !Dockerfile
 !crontab
 !requirements.txt
+## Docs and Tests
 !.env.example
 !./tests/
 !tests/*.py

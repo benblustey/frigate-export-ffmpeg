@@ -48,10 +48,10 @@ def main():
     process_date = args.d
     provided_start = args.s
     provided_end = args.e
-    output_directory = os.getenv('DOWNLOADS_DIR', './downloads')
+    downloads_directory = os.getenv('DOWNLOADS_DIR', './downloads')
     
     try:
-        os.makedirs(output_directory)
+        os.makedirs(downloads_directory)
     except FileExistsError:
         pass
 
@@ -79,13 +79,13 @@ def main():
         return("Dates don't work.")
 
     if args.o:
-        output_directory = args.o
+        downloads_directory = args.o
 
-    if os.path.exists(output_directory) and args.f:
-        confirm = input(f"Are you sure you want to delete ./{output_directory} folder? This may include downloads that have not been processed.\n(y/n) ")
+    if os.path.exists(downloads_directory) and args.f:
+        confirm = input(f"Are you sure you want to delete ./{downloads_directory} folder? This may include downloads that have not been processed.\n(y/n) ")
         if confirm.lower() == 'y':
-            print(f"Removing directory ./{output_directory}")
-            os.system(f"rm -rf ./{output_directory}")
+            print(f"Removing directory ./{downloads_directory}")
+            os.system(f"rm -rf ./{downloads_directory}")
 
     frigate_server = os.getenv('FRIGATE_SERVER')
     events_filter = "?camera=front_yard&labels=explosion&fireworks"
@@ -100,13 +100,13 @@ def main():
     for clip in clips:
         clip_name = f"{clip['camera']}-{clip['id']}"
         clip_name_short = re.match(r'^[^.]+', clip_name)[0]
-        if not os.path.exists(f"{output_directory}/{clip_name_short}.mp4"):
+        if not os.path.exists(f"{downloads_directory}/{clip_name_short}.mp4"):
             print(clip['id'])
             if not args.t:
                 clip_url = f"{frigate_server}/{clip['id']}/clip.mp4"
                 print(clip_url)
                 r = requests.get(clip_url)
-                with open(f"{output_directory}/{clip_name_short}.mp4", 'wb') as f:
+                with open(f"{downloads_directory}/{clip_name_short}.mp4", 'wb') as f:
                     f.write(r.content)
             videos_processed += 1
         elif args.t:
