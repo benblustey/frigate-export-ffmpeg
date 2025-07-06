@@ -1,14 +1,20 @@
 services:
   frigate-export:
-    # build: .
+    build: .
     image: henhouse/frigate-export:latest
     volumes:
       - ./downloads:/app/downloads
+      - ./output_logs:/app/output_logs
     environment:
       - FRIGATE_SERVER=${FRIGATE_SERVER:-http://192.168.1.81:5000/api/events}
-      - CRON_SCHEDULE=${CRON_SCHEDULE:-0 * * * *}
+      - MONGODB_IP=${MONGODB_IP:-192.168.1.81}
+      - MONGODB_PORT=${MONGODB_PORT}
+      - MONGODB_NAME=${MONGODB_NAME}
+      - MONGODB_COLLECTION=${MONGODB_COLLECTION}
       - DOWNLOADS_DIR=/app/downloads
       - PROCESS_VIDEO=${PROCESS_VIDEO:-false}
+      - LOGS_DIR=${LOGS_DIR}
+      - CRON_SCHEDULE=${CRON_SCHEDULE:-0 * * * *}
     restart: unless-stopped
     depends_on:
       - mongodb
@@ -22,7 +28,7 @@ services:
       - "27017:27017" # Map host port 27017 to container port 27017
     volumes:
       - ./mongodb_data:/data/db # Persist data using a named volume
-    environment:
+    # environment:
       # Optional: Set MongoDB root user and password for authentication
       # - MONGO_INITDB_ROOT_USERNAME=admin
       # - MONGO_INITDB_ROOT_PASSWORD=password
