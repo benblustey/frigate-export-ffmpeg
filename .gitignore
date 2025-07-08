@@ -14,6 +14,7 @@
 !copy_files.py
 !example.env
 !epoch_convert.py
+!api_call_upload.py
 
 ## Docker
 !docker-compose.yaml

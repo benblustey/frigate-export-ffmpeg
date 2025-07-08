@@ -1,7 +1,7 @@
 services:
   frigate-export:
     build: .
-    image: henhouse/frigate-export:latest
+    image: henhouse/frigate-export:1.1.0
     volumes:
       - ./downloads:/app/downloads
       - ./output_logs:/app/output_logs
@@ -11,6 +11,11 @@ services:
       - MONGODB_PORT=${MONGODB_PORT}
       - MONGODB_NAME=${MONGODB_NAME}
       - MONGODB_COLLECTION=${MONGODB_COLLECTION}
+      - MQTT_TOPICS=${MQTT_TOPICS}
+      - MQTT_USER=${MQTT_USER}
+      - MQTT_PASSWORD=${MQTT_PASSWORD}
+      - MQTT_PORT=${MQTT_PORT}
+      - MQTT_BROKER=${MQTT_BROKER}
       - DOWNLOADS_DIR=/app/downloads
       - PROCESS_VIDEO=${PROCESS_VIDEO:-false}
       - LOGS_DIR=${LOGS_DIR}

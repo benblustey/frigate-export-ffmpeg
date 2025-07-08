@@ -21,7 +21,7 @@ RUN pip install --prefix=/install -r requirements.txt
 FROM python:3.12-alpine
 
 LABEL maintainer="admin@henhousesolutions.com" \
-    version="1.0.0"
+    version="1.1.0"
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1
@@ -36,4 +36,4 @@ WORKDIR /app
 
 COPY . .
 
-CMD ["python", "main.py"]
+CMD ["python", "api_call_upload.py"]
