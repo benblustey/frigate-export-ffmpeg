@@ -41,12 +41,12 @@ def epoch_to_dates(epoch_str: str):
 def extract_selected_fields(event, epoch_prefix):
     formattedDate, eventDate = epoch_to_dates(epoch_prefix)
     # check if it's a tuesday between 05:00 and 13:00
-    dt = datetime.strptime(formattedDate, '%d %b %Y %H:%M:%S')
-    is_tuesday = dt.weekday() == 1  # 0 = Monday, 1 = Tuesday, ...
-    is_between_hours = 5 <= dt.hour < 13
-    if not is_tuesday and is_between_hours:
-        print("Garbage Day Event")
-        return None
+    # dt = datetime.strptime(formattedDate, '%d %b %Y %H:%M:%S')
+    # is_tuesday = dt.weekday() == 1  # 0 = Monday, 1 = Tuesday, ...
+    # is_between_hours = 5 <= dt.hour < 13
+    # if not is_tuesday and is_between_hours:
+    #     print("Garbage Day Event")
+    #     return None
 
     score = event.get("data", {}).get("score")
     label = event.get("label")
@@ -105,6 +105,7 @@ def get_last_record():
 
 def on_mqtt_message(client, userdata, msg):
     print(f"[MQTT] Topic: {msg.topic}, Payload: {msg.payload.decode()}")
+    make_api_call()
     # Optionally: process the payload here
 
 def start_mqtt_listener():

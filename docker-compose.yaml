@@ -20,6 +20,7 @@ services:
       - PROCESS_VIDEO=${PROCESS_VIDEO:-false}
       - LOGS_DIR=${LOGS_DIR}
       - CRON_SCHEDULE=${CRON_SCHEDULE:-0 * * * *}
+      - LOOP_DELAY_SECONDS=${LOOP_DELAY_SECONDS}
     restart: unless-stopped
     depends_on:
       - mongodb
