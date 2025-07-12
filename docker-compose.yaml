@@ -1,5 +1,6 @@
 services:
   frigate-export:
+    container_name: frigate-export
     build: .
     image: henhouse/frigate-export:1.1.0
     volumes:
@@ -20,6 +21,7 @@ services:
       - PROCESS_VIDEO=${PROCESS_VIDEO:-false}
       - LOGS_DIR=${LOGS_DIR}
       - CRON_SCHEDULE=${CRON_SCHEDULE:-0 * * * *}
+      - LOOP_DELAY_SECONDS=${LOOP_DELAY_SECONDS}
     restart: unless-stopped
     depends_on:
       - mongodb
@@ -30,7 +32,7 @@ services:
     image: mongo:latest # Or specify a specific version like mongo:7.0
     container_name: frigate-mongodb
     ports:
-      - "27017:27017" # Map host port 27017 to container port 27017
+      - "27018:27017" # Map host port 27017 to container port 27017
     volumes:
       - ./mongodb_data:/data/db # Persist data using a named volume
     # environment:
